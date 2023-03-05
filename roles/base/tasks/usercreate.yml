@@ -1,0 +1,33 @@
+---                                           
+- name: users | {{ username }} | create group 
+  group:
+    name: "{{ username }}"
+    state: present
+ 
+- name: users | {{ username }} | create user
+  user:
+    name: "{{ username }}"
+    group: "{{ username }}"
+    state: present
+
+- name: users | {{ username }} | add sudoers file
+  copy:
+    dest: /etc/sudoers.d/{{ username }}
+    content: '{{ username }} ALL=(ALL) NOPASSWD: ALL'
+
+- name: users | {{ username }} | add .ssh folder
+  file:
+    path: "/home/{{ username }}/.ssh"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0700
+
+- name: users | {{ username }} | inject ssh.pub
+  copy:
+    dest: /home/{{ username }}/.ssh/authorized_keys
+    content: "{{ sshkey }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0600
+

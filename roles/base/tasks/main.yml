@@ -1,0 +1,55 @@
+---
+- name: base | install basic packages
+  package:
+    name:
+      - nmap
+      - htop
+      - vim
+      - git
+
+- name: users | make sure sudo is installed
+  package:
+    name: sudo
+    state: latest
+
+- name: sshd | make sure it's running
+  systemd:
+    name: sshd
+    state: started
+    enabled: true
+
+- name: base | add user serveruser1
+  import_tasks: usercreate.yml
+  vars: 
+    - username: serveruser1 
+    - sshkey: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEKFyLa/JEgIK6zEUaGNz1hwSRncCNdWxYMxy0iCEn1h "
+
+- name: base | autoupdate setup
+  package:
+    name: dnf-automatic
+    state: latest
+
+- name: base | enable autoupdate
+  systemd:
+    name: dnf-automatic-install.timer
+    state: started
+    enabled: true
+
+- name: base | setup cronjob
+  cron:
+    name: Autodeploy
+    special_time: "{{ deployer_cron_specialtime }}"
+    job: "{{ deployer_cron_job }}"
+
+- name: base | install guest utilities on xen guests
+  package:
+    name: xe-guest-utilities-latest
+  when: ansible_virtualization_type == 'xen'
+
+- name: install base packages
+  systemd:
+    name: xe-linux-distribution
+    state: started
+    enabled: true
+  when: ansible_virtualization_type == 'xen'
+

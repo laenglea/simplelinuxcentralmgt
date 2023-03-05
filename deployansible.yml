@@ -1,0 +1,16 @@
+---
+- hosts: all
+  remote_user: root
+  gather_facts: false
+  become: true
+    
+  tasks:
+    - name: install epel release
+      package:
+        name: epel-release
+
+    - name: install base packages
+      package:
+        name: 
+          - ansible
+          - git

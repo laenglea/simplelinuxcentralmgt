@@ -1,0 +1,5 @@
+---
+# vars file for base
+deployer_cron_specialtime: daily
+deployer_cron_job: ansible-pull -U https://github.com/laenglea/simplelinuxcentralmgt.git -i hosts
+
